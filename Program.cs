@@ -6,9 +6,18 @@ namespace HW3
 	{
 		static void Main(string[] args)
 		{
-			SharableSpreadaheet Sheet = new SharableSpreadaheet(10, 10);
-			Sheet.setCell(1, 1, "Inbar Homo");
-			//Console.WriteLine(Sheet.getCell(1, 1));
+			SharableSpreadaheet Sheet = new SharableSpreadaheet(3, 3);
+			Sheet.setCell(1, 2, "Inbar Homo");
+			Sheet.setCell(2, 2, "Inbar Lo Homo Aval Ulay");
+			Sheet.exchangeRows(1, 2);
+			Sheet.exchangeCols(1, 2);
+			Sheet.save("sheet_t.dat");
+			Sheet.setCell(1, 2, "TT");
+			Sheet.load("sheet_t.dat");
+			Sheet.setCell(1, 2, "Chen");
+			
+			//Sheet.addRow(1);
+			//Console.WriteLine(Sheet.getCell(1, 2));
 			//Console.WriteLine(Sheet);
 		}
 	}

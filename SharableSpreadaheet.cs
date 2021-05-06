@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+
 class SharableSpreadaheet
 {
     string[,] Sheet;
@@ -104,19 +106,19 @@ class SharableSpreadaheet
     public bool addRow(int row1)
     {
         //add a row after row1
-        SharableSpreadaheet NewS = new SharableSpreadaheet(colL + 1, rowL);
+        SharableSpreadaheet NewS = new SharableSpreadaheet(this.colL + 1, this.rowL);
 
         for (int i=0;i<=row1;i++)
 		{
-            for (int j = 0; j < rowL; j++)
+            for (int j = 0; j < this.rowL; j++)
             { 
                 NewS.Sheet[i, j] = this.Sheet[i, j];
             }
         }
         for (int i=row1+2;i<NewS.colL;i++)
 		{
-            for (int j = 0; j < rowL; j++)
-                NewS.Sheet[i, j] = this.Sheet[i, j];
+            for (int j = 0; j < this.rowL; j++)
+                NewS.Sheet[i, j] = this.Sheet[i-1, j];
 		}
         this.Sheet = NewS.Sheet;
         this.colL++;
@@ -136,7 +138,7 @@ class SharableSpreadaheet
         for (int i=col1+2;i<NewS.rowL;i++)
 		{
             for (int j = 0; j < colL; j++)
-                NewS.Sheet[i, j] = this.Sheet[i, j];
+                NewS.Sheet[i, j] = this.Sheet[i, j-1];
 		}
         this.Sheet = NewS.Sheet;
         this.rowL++;
@@ -160,14 +162,42 @@ class SharableSpreadaheet
     {
         // save the spreadsheet to a file fileName.
         // you can decide the format you save the data. There are several options.
-
+        using (StreamWriter file= new StreamWriter(fileName))
+		{
+            for (int i=0;i<this.colL;i++)
+			{
+                string data = "";
+                for (int j = 0; j < this.rowL; j++)
+                { 
+                    data += this.Sheet[i, j] + ",";
+                }
+                file.WriteLine(data);
+            }
+           
+		}
         return true;
     }
     public bool load(String fileName)
     {
         // load the spreadsheet from fileName
         // replace the data and size of the current spreadsheet with the loaded data
-        return true;
+        using (StreamReader r = new StreamReader(fileName))
+		{
+            string[] lines = File.ReadAllLines(fileName);
+            int nCol = lines[0].Split(',').Length - 1;
+            int nRow = lines.Length;
+
+            string[,] NSheet = new string[nRow,nCol];
+            for (int i=0;i<nRow;i++)
+			{
+                for (int j=0;j<nCol;j++)
+				{
+                    NSheet[i, j] = lines[i].Split(",")[j];
+				}
+			}
+            this.Sheet = NSheet;
+		}
+            return true;
     }
 }
 
