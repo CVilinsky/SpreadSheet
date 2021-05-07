@@ -1,11 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 
 class SharableSpreadaheet
 {
     string[,] Sheet;
     int rowL;
     int colL;
+    bool LimitSet;
+    Semaphore SearchLimit;
+    private static Mutex mut = new Mutex();
     public SharableSpreadaheet(int nRows, int nCols)
     {
         // construct a nRows*nCols spreadsheet
@@ -31,7 +35,25 @@ class SharableSpreadaheet
         // search the cell with string str, and return true/false accordingly.
         // stores the location in row,col.
         // return the first cell that contains the string (search from first row to the last row)
-        return true;
+        if (LimitSet == true)
+            SearchLimit.WaitOne();
+        for (int i=0;i<this.colL;i++)
+        {
+            for (int j = 0; j < this.rowL; j++)
+			{
+                if (getCell(i,j)==str)
+				{
+                    row = i;
+                    col = j;
+                    if (LimitSet == true)
+                        SearchLimit.Release();
+                    return true;
+				}
+			}
+		}
+        if (LimitSet == true)
+            SearchLimit.Release();
+        return false;
     }
     public bool exchangeRows(int row1, int row2)
     {
@@ -61,6 +83,8 @@ class SharableSpreadaheet
     public bool searchInRow(int row, String str, ref int col)
     {
         // perform search in specific row
+        if (LimitSet == true)
+            SearchLimit.WaitOne();
         for (int i=1;i<rowL;i++)
 		{
             if (this.Sheet[row, i] == str)
@@ -69,11 +93,15 @@ class SharableSpreadaheet
                 break;
             }
 		}
+        if (LimitSet == true)
+            SearchLimit.Release();
         return true;
     }
     public bool searchInCol(int col, String str, ref int row)
     {
         // perform search in specific col
+        if (LimitSet == true)
+            SearchLimit.WaitOne();
         for (int i = 1; i < colL; i++)
         {
             if (this.Sheet[i, col] == str)
@@ -82,12 +110,16 @@ class SharableSpreadaheet
                 break;
             }
         }
+        if (LimitSet == true)
+            SearchLimit.Release();
         return true;
     }
     public bool searchInRange(int col1, int col2, int row1, int row2, String str, ref int row, ref int col)
     {
         // perform search within spesific range: [row1:row2,col1:col2] 
         //includes col1,col2,row1,row2
+        if (LimitSet == true)
+            SearchLimit.WaitOne();
         for (int i = col1; i <= col2; i++)
         {
             for (int j=row1;j<=row2;j++)
@@ -101,6 +133,8 @@ class SharableSpreadaheet
 			}
             break;
         }
+        if (LimitSet == true)
+            SearchLimit.Release();
         return true;
     }
     public bool addRow(int row1)
@@ -151,11 +185,14 @@ class SharableSpreadaheet
         nCols = this.rowL;
 
     }
-    public void setConcurrentSearchLimit(int nUsers)
+    public bool setConcurrentSearchLimit(int nUsers)
     {
         // this function aims to limit the number of users that can perform the search operations concurrently.
         // The default is no limit. When the function is called, the max number of concurrent search operations is set to nUsers. 
         // In this case additional search operations will wait for existing search to finish.
+        Semaphore SearchLimit = new Semaphore(nUsers, nUsers);
+        LimitSet = true;
+        return true;
     }
 
     public bool save(String fileName)
@@ -173,7 +210,6 @@ class SharableSpreadaheet
                 }
                 file.WriteLine(data);
             }
-           
 		}
         return true;
     }
