@@ -9,11 +9,19 @@ class SharableSpreadaheet
     int colL;
     bool LimitSet;
     Semaphore SearchLimit;
-    private static Mutex mut = new Mutex();
+    Mutex[] Mutex_array_row;
+    Mutex[] Mutex_array_col;
+
     public SharableSpreadaheet(int nRows, int nCols)
     {
         // construct a nRows*nCols spreadsheet
         this.Sheet = new string[nRows, nCols];
+        this.Mutex_array_row = new Mutex[nRows];
+        for (int i = 0; i < nRows; i++)
+            Mutex_array_row[i] = new Mutex();
+        this.Mutex_array_col = new Mutex[nCols];
+        for (int i = 0; i < nCols; i++)
+            Mutex_array_col[i] = new Mutex();
         this.rowL = nCols;
         this.colL = nRows;
     }
@@ -58,18 +66,23 @@ class SharableSpreadaheet
     public bool exchangeRows(int row1, int row2)
     {
         // exchange the content of row1 and row2
+        Mutex_array_row[row1].WaitOne();
+        Mutex_array_row[row2].WaitOne();
         string temp;
         for (int i=1;i<rowL;i++)
 		{
             temp = this.Sheet[row1, i];
-            this.Sheet[row1, i] = this.Sheet[row2, i];
-            this.Sheet[row2, i] = temp;
+			this.Sheet[row1, i] = this.Sheet[row2, i];
+			this.Sheet[row2, i] = temp;
 		}
+        Mutex_array_row[row1].ReleaseMutex();
+        Mutex_array_row[row2].ReleaseMutex();
         return true;
     }
     public bool exchangeCols(int col1, int col2)
     {
         // exchange the content of col1 and col2
+        
         string temp;
         for (int i=1;i<colL;i++)
 		{
@@ -85,6 +98,7 @@ class SharableSpreadaheet
         // perform search in specific row
         if (LimitSet == true)
             SearchLimit.WaitOne();
+        this.Mutex_array_row[row].WaitOne();
         for (int i=1;i<rowL;i++)
 		{
             if (this.Sheet[row, i] == str)
@@ -102,6 +116,7 @@ class SharableSpreadaheet
         // perform search in specific col
         if (LimitSet == true)
             SearchLimit.WaitOne();
+        Mutex_array_col[col].WaitOne();
         for (int i = 1; i < colL; i++)
         {
             if (this.Sheet[i, col] == str)
@@ -141,7 +156,13 @@ class SharableSpreadaheet
     {
         //add a row after row1
         SharableSpreadaheet NewS = new SharableSpreadaheet(this.colL + 1, this.rowL);
-
+        Mutex[] NewMutex_array = new Mutex[colL+1];
+        Array.Copy(this.Mutex_array_row, 0, NewMutex_array, 0, colL);
+        this.Mutex_array_row = NewMutex_array;
+        for (int i=row1+1;i<colL;i++)
+		{
+            this.Mutex_array_row[i].WaitOne();
+		}
         for (int i=0;i<=row1;i++)
 		{
             for (int j = 0; j < this.rowL; j++)
@@ -154,6 +175,10 @@ class SharableSpreadaheet
             for (int j = 0; j < this.rowL; j++)
                 NewS.Sheet[i, j] = this.Sheet[i-1, j];
 		}
+        for (int i = row1 + 1; i < colL; i++)
+        {
+            this.Mutex_array_row[i].ReleaseMutex();
+        }
         this.Sheet = NewS.Sheet;
         this.colL++;
         return true;
@@ -162,6 +187,13 @@ class SharableSpreadaheet
     {
         //add a column after col1
         SharableSpreadaheet NewS = new SharableSpreadaheet(colL, rowL + 1);
+        Mutex[] NewMutex_array = new Mutex[rowL + 1];
+        Array.Copy(this.Mutex_array_col, 0, NewMutex_array, 0, rowL);
+        this.Mutex_array_col = NewMutex_array;
+        for (int i = col1 + 1; i < colL; i++)
+        {
+            this.Mutex_array_col[i].WaitOne();
+        }
         for (int i=0;i<=col1;i++)
 		{
             for (int j=0;j<colL;j++)
@@ -174,6 +206,10 @@ class SharableSpreadaheet
             for (int j = 0; j < colL; j++)
                 NewS.Sheet[i, j] = this.Sheet[i, j-1];
 		}
+        for (int i = col1 + 1; i < colL; i++)
+        {
+            this.Mutex_array_col[i].ReleaseMutex();
+        }
         this.Sheet = NewS.Sheet;
         this.rowL++;
         return true;
