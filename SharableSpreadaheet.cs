@@ -104,12 +104,14 @@ class SharableSpreadaheet
             if (this.Sheet[row, i] == str)
             {
                 col = i;
-                break;
+                if (LimitSet == true)
+                    SearchLimit.Release();
+                return true;
             }
 		}
         if (LimitSet == true)
             SearchLimit.Release();
-        return true;
+        return false;
     }
     public bool searchInCol(int col, String str, ref int row)
     {
@@ -122,12 +124,14 @@ class SharableSpreadaheet
             if (this.Sheet[i, col] == str)
             {
                 row = i;
-                break;
+                if (LimitSet == true)
+                    SearchLimit.Release();
+                return true;
             }
         }
         if (LimitSet == true)
             SearchLimit.Release();
-        return true;
+        return false;
     }
     public bool searchInRange(int col1, int col2, int row1, int row2, String str, ref int row, ref int col)
     {
@@ -143,14 +147,16 @@ class SharableSpreadaheet
 				{
                     row = j;
                     col = i;
-                    break;
-				}
+                    if (LimitSet == true)
+                        SearchLimit.Release();
+                    return true;
+                }
 			}
             break;
         }
         if (LimitSet == true)
             SearchLimit.Release();
-        return true;
+        return false;
     }
     public bool addRow(int row1)
     {
@@ -159,6 +165,7 @@ class SharableSpreadaheet
         Mutex[] NewMutex_array = new Mutex[colL+1];
         Array.Copy(this.Mutex_array_row, 0, NewMutex_array, 0, colL);
         this.Mutex_array_row = NewMutex_array;
+        this.Mutex_array_row[colL] = new Mutex();
         for (int i=row1+1;i<colL;i++)
 		{
             this.Mutex_array_row[i].WaitOne();
@@ -190,7 +197,8 @@ class SharableSpreadaheet
         Mutex[] NewMutex_array = new Mutex[rowL + 1];
         Array.Copy(this.Mutex_array_col, 0, NewMutex_array, 0, rowL);
         this.Mutex_array_col = NewMutex_array;
-        for (int i = col1 + 1; i < colL; i++)
+        this.Mutex_array_col[rowL] = new Mutex();
+        for (int i = col1 + 1; i < rowL; i++)
         {
             this.Mutex_array_col[i].WaitOne();
         }
@@ -198,15 +206,15 @@ class SharableSpreadaheet
 		{
             for (int j=0;j<colL;j++)
 			{
-                NewS.Sheet[i, j] = this.Sheet[i, j];
+                NewS.Sheet[j, i] = this.Sheet[j, i];
 			}
 		}
         for (int i=col1+2;i<NewS.rowL;i++)
 		{
             for (int j = 0; j < colL; j++)
-                NewS.Sheet[i, j] = this.Sheet[i, j-1];
+                NewS.Sheet[j, i] = this.Sheet[j, i-1];
 		}
-        for (int i = col1 + 1; i < colL; i++)
+        for (int i = col1 + 1; i < rowL; i++)
         {
             this.Mutex_array_col[i].ReleaseMutex();
         }
@@ -268,7 +276,16 @@ class SharableSpreadaheet
 				}
 			}
             this.Sheet = NSheet;
-		}
+            this.Mutex_array_row = new Mutex[nRow];
+            for (int i = 0; i < nRow; i++)
+                Mutex_array_row[i] = new Mutex();
+            this.Mutex_array_col = new Mutex[nCol];
+            for (int i = 0; i < nCol; i++)
+                Mutex_array_col[i] = new Mutex();
+            this.rowL = nCol;
+            this.colL = nRow;
+
+        }
             return true;
     }
 }
