@@ -28,8 +28,9 @@ class SharableSpreadaheet
     public String getCell(int row, int col)
     {
         // return the string at [row,col]
-
-        return this.Sheet[row,col];
+        string to_ret;
+        to_ret = this.Sheet[row, col];
+        return to_ret;
     }
     public bool setCell(int row, int col, String str)
     {
@@ -82,15 +83,17 @@ class SharableSpreadaheet
     public bool exchangeCols(int col1, int col2)
     {
         // exchange the content of col1 and col2
-        
+        this.Mutex_array_col[col1].WaitOne();
+        this.Mutex_array_col[col2].WaitOne();
         string temp;
         for (int i=1;i<colL;i++)
 		{
             temp = Sheet[i, col1];
             this.Sheet[i, col1] = this.Sheet[i, col2];
             this.Sheet[i, col2] = temp;
-
         }
+        this.Mutex_array_col[col1].ReleaseMutex();
+        this.Mutex_array_col[col2].ReleaseMutex();
         return true;
     }
     public bool searchInRow(int row, String str, ref int col)
@@ -104,6 +107,7 @@ class SharableSpreadaheet
             if (this.Sheet[row, i] == str)
             {
                 col = i;
+                this.Mutex_array_row[row].ReleaseMutex();
                 if (LimitSet == true)
                     SearchLimit.Release();
                 return true;
@@ -111,6 +115,7 @@ class SharableSpreadaheet
 		}
         if (LimitSet == true)
             SearchLimit.Release();
+        this.Mutex_array_row[row].ReleaseMutex();
         return false;
     }
     public bool searchInCol(int col, String str, ref int row)
@@ -124,6 +129,7 @@ class SharableSpreadaheet
             if (this.Sheet[i, col] == str)
             {
                 row = i;
+                Mutex_array_col[col].ReleaseMutex();
                 if (LimitSet == true)
                     SearchLimit.Release();
                 return true;
@@ -131,6 +137,7 @@ class SharableSpreadaheet
         }
         if (LimitSet == true)
             SearchLimit.Release();
+        Mutex_array_col[col].ReleaseMutex();
         return false;
     }
     public bool searchInRange(int col1, int col2, int row1, int row2, String str, ref int row, ref int col)
@@ -173,19 +180,23 @@ class SharableSpreadaheet
         for (int i=0;i<=row1;i++)
 		{
             for (int j = 0; j < this.rowL; j++)
-            { 
+            {
                 NewS.Sheet[i, j] = this.Sheet[i, j];
             }
         }
+        
         for (int i=row1+2;i<NewS.colL;i++)
 		{
             for (int j = 0; j < this.rowL; j++)
+            {
                 NewS.Sheet[i, j] = this.Sheet[i-1, j];
+            }
 		}
         for (int i = row1 + 1; i < colL; i++)
         {
             this.Mutex_array_row[i].ReleaseMutex();
         }
+
         this.Sheet = NewS.Sheet;
         this.colL++;
         return true;

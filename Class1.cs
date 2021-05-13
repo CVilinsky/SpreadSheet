@@ -11,25 +11,31 @@ namespace HW3
 	{
 		int row;
 		int col;
+		int finished_threads = 0;
 		public Simulator(int rows, int cols, int nThreads, int nOperations)
 		{
 			SharableSpreadaheet Sheet = new SharableSpreadaheet(rows, cols);
 			this.row = rows;
 			this.col = cols;
+			object[] To_Send = new object[] { Sheet, this.row, this.col, nOperations };
 			ThreadPool.SetMinThreads(1,0);
 			ThreadPool.SetMaxThreads(nThreads, 0);
+			
 			//OP(Sheet, getFunc(nOperations), rows, cols, nOperations);
-			for (int i = 0; i < nThreads; i++)
+				for (int i = 0; i < nThreads; i++)
+				{
+					ThreadPool.QueueUserWorkItem(new WaitCallback(DoTasks), To_Send);
+					Console.WriteLine("Looping time num: {0}", i + 1);
+					Thread.Sleep(1000);
+				}
+				while(finished_threads!=nThreads)
 			{
-				object[] To_Send = new object[] { Sheet, this.row, this.col, nOperations };
-				ThreadPool.QueueUserWorkItem(new WaitCallback(DoTasks),To_Send);
-				Console.WriteLine("Looping time num: {0}",i+1);
-				Thread.Sleep(1000);
 			}
 			Sheet.save("spreadsheet.dat");
-
+			Console.WriteLine("Saved and Finished");
+			
 		}
-		public static void Operations(SharableSpreadaheet Sheet, int rows, int cols, int nOperation)
+		public void Operations(SharableSpreadaheet Sheet, int rows, int cols, int nOperation)
 			{
 				Console.WriteLine("Starting Simulation\n-----------------------");
 				Console.WriteLine("Number of Rows - {0}\nNumber of Cols - {1}\nNumber of Operations - {2}", rows,
@@ -39,7 +45,7 @@ namespace HW3
 				Random rnd = new Random();
 				for (int i = 0; i < nOperation; i++)
 				{
-				Thread.Sleep(100);
+				Thread.Sleep(300);
 					int col1 = rnd.Next(1, cols);
 					int col2 = rnd.Next(col1+1, cols);
 
@@ -69,7 +75,7 @@ namespace HW3
 							break;
 
 						case 2:
-							Console.WriteLine("Getting cell...");
+							Console.WriteLine("Getting cell in location ({0},{1})",row1,col1);
 							string cell = Sheet.getCell(row1, col1);
 							Console.WriteLine("Cell value: {0}", cell);
 							Console.WriteLine("Got Cell.\n");
@@ -227,7 +233,7 @@ namespace HW3
 
 					}
 				}
-
+			finished_threads++;
 		}
 
 		public static string[] getFunc(int nOperations)
@@ -245,7 +251,7 @@ namespace HW3
 
 			return funcList;
 		}
-		public static void DoTasks(object To_Convert)
+		public void DoTasks(object To_Convert)
 		{
 			object[] To_Convert1 = (object[])To_Convert;
 			SharableSpreadaheet Sheet = (SharableSpreadaheet)To_Convert1[0];
