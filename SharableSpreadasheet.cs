@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading;
 
-class SharableSpreadaheet
+public class SharableSpreadasheet
 {
     string[,] Sheet;
     int rowL;
@@ -11,11 +11,16 @@ class SharableSpreadaheet
     Semaphore SearchLimit;
     Mutex[] Mutex_array_row;
     Mutex[] Mutex_array_col;
+    Mutex add_row;
+    Mutex add_col;
 
-    public SharableSpreadaheet(int nRows, int nCols)
+    public SharableSpreadasheet(int nRows, int nCols)
     {
         // construct a nRows*nCols spreadsheet
+        this.SearchLimit = new Semaphore(1, 1);
         this.Sheet = new string[nRows, nCols];
+        this.add_col = new Mutex();
+        this.add_row = new Mutex() ;
         this.Mutex_array_row = new Mutex[nRows];
         for (int i = 0; i < nRows; i++)
             Mutex_array_row[i] = new Mutex();
@@ -45,7 +50,11 @@ class SharableSpreadaheet
         // stores the location in row,col.
         // return the first cell that contains the string (search from first row to the last row)
         if (LimitSet == true)
+		{
             SearchLimit.WaitOne();
+            Console.WriteLine("Increased Search Limit");
+        }
+            
         for (int i=0;i<this.colL;i++)
         {
             for (int j = 0; j < this.rowL; j++)
@@ -55,13 +64,24 @@ class SharableSpreadaheet
                     row = i;
                     col = j;
                     if (LimitSet == true)
-                        SearchLimit.Release();
+                    {
+                        try
+                        {
+                            SearchLimit.Release();
+                            Console.WriteLine("Decreased Search Limit");
+                        }
+                        catch { }
+
+                    }
                     return true;
 				}
 			}
 		}
         if (LimitSet == true)
-            SearchLimit.Release();
+            try { SearchLimit.Release();
+                Console.WriteLine("Decreased Search Limit");
+            }
+            catch { }
         return false;
     }
     public bool exchangeRows(int row1, int row2)
@@ -100,7 +120,11 @@ class SharableSpreadaheet
     {
         // perform search in specific row
         if (LimitSet == true)
+		{
             SearchLimit.WaitOne();
+            Console.WriteLine("Increased Search Limit");
+        }
+            
         this.Mutex_array_row[row].WaitOne();
         for (int i=1;i<rowL;i++)
 		{
@@ -109,20 +133,33 @@ class SharableSpreadaheet
                 col = i;
                 this.Mutex_array_row[row].ReleaseMutex();
                 if (LimitSet == true)
-                    SearchLimit.Release();
+                {
+                    try
+                    {
+                        SearchLimit.Release();
+                        Console.WriteLine("Decreased Search Limit");
+                    }
+                    catch { }
+
+                }
                 return true;
             }
 		}
         if (LimitSet == true)
-            SearchLimit.Release();
+            try { SearchLimit.Release();
+                Console.WriteLine("Decreased Search Limit");
+            }
+            catch { }
         this.Mutex_array_row[row].ReleaseMutex();
         return false;
     }
     public bool searchInCol(int col, String str, ref int row)
     {
         // perform search in specific col
-        if (LimitSet == true)
+        if (LimitSet == true) { 
             SearchLimit.WaitOne();
+            Console.WriteLine("Increased Search Limit");
+        }
         Mutex_array_col[col].WaitOne();
         for (int i = 1; i < colL; i++)
         {
@@ -131,13 +168,25 @@ class SharableSpreadaheet
                 row = i;
                 Mutex_array_col[col].ReleaseMutex();
                 if (LimitSet == true)
-                    SearchLimit.Release();
+                {
+                    try
+                    {
+                        SearchLimit.Release();
+                        Console.WriteLine("Decreased Search Limit");
+                    }
+                    catch { }
+
+                }
                 return true;
             }
         }
         if (LimitSet == true)
-            SearchLimit.Release();
-        Mutex_array_col[col].ReleaseMutex();
+            try { SearchLimit.Release();
+                Console.WriteLine("Decreased Search Limit");
+            }
+            catch { }
+
+            Mutex_array_col[col].ReleaseMutex();
         return false;
     }
     public bool searchInRange(int col1, int col2, int row1, int row2, String str, ref int row, ref int col)
@@ -145,7 +194,11 @@ class SharableSpreadaheet
         // perform search within spesific range: [row1:row2,col1:col2] 
         //includes col1,col2,row1,row2
         if (LimitSet == true)
+		{
             SearchLimit.WaitOne();
+            Console.WriteLine("Increased Search Limit");
+        }
+            
         for (int i = col1; i <= col2; i++)
         {
             for (int j=row1;j<=row2;j++)
@@ -155,20 +208,35 @@ class SharableSpreadaheet
                     row = j;
                     col = i;
                     if (LimitSet == true)
-                        SearchLimit.Release();
+                    {
+                        try
+                        {
+                            SearchLimit.Release();
+                            Console.WriteLine("Decreased Search Limit");
+                        }
+                        catch { }
+
+                    }
                     return true;
                 }
 			}
             break;
         }
-        if (LimitSet == true)
-            SearchLimit.Release();
+        if (LimitSet == true) {
+            try { SearchLimit.Release();
+                Console.WriteLine("Decreased Search Limit");
+            }
+            catch { }
+
+            }
+            
         return false;
     }
     public bool addRow(int row1)
     {
         //add a row after row1
-        SharableSpreadaheet NewS = new SharableSpreadaheet(this.colL + 1, this.rowL);
+        this.add_row.WaitOne();
+        SharableSpreadasheet NewS = new SharableSpreadasheet(this.colL + 1, this.rowL);
         Mutex[] NewMutex_array = new Mutex[colL+1];
         Array.Copy(this.Mutex_array_row, 0, NewMutex_array, 0, colL);
         this.Mutex_array_row = NewMutex_array;
@@ -199,12 +267,14 @@ class SharableSpreadaheet
 
         this.Sheet = NewS.Sheet;
         this.colL++;
+        this.add_row.ReleaseMutex();
         return true;
     }
     public bool addCol(int col1)
     {
         //add a column after col1
-        SharableSpreadaheet NewS = new SharableSpreadaheet(colL, rowL + 1);
+        this.add_col.WaitOne();
+        SharableSpreadasheet NewS = new SharableSpreadasheet(colL, rowL + 1);
         Mutex[] NewMutex_array = new Mutex[rowL + 1];
         Array.Copy(this.Mutex_array_col, 0, NewMutex_array, 0, rowL);
         this.Mutex_array_col = NewMutex_array;
@@ -231,6 +301,7 @@ class SharableSpreadaheet
         }
         this.Sheet = NewS.Sheet;
         this.rowL++;
+        this.add_col.ReleaseMutex();
         return true;
     }
     public void getSize(ref int nRows, ref int nCols)
@@ -245,7 +316,7 @@ class SharableSpreadaheet
         // this function aims to limit the number of users that can perform the search operations concurrently.
         // The default is no limit. When the function is called, the max number of concurrent search operations is set to nUsers. 
         // In this case additional search operations will wait for existing search to finish.
-        Semaphore SearchLimit = new Semaphore(nUsers, nUsers);
+        this.SearchLimit = new Semaphore(nUsers, nUsers);
         LimitSet = true;
         return true;
     }

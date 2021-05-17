@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace HW3
 {
-	class Simulator
+	public class Simulator
 	{
 		int row;
 		int col;
 		int finished_threads = 0;
 		public Simulator(int rows, int cols, int nThreads, int nOperations)
 		{
-			SharableSpreadaheet Sheet = new SharableSpreadaheet(rows, cols);
+			SharableSpreadasheet Sheet = new SharableSpreadasheet(rows, cols);
 			this.row = rows;
 			this.col = cols;
 			object[] To_Send = new object[] { Sheet, this.row, this.col, nOperations };
@@ -27,6 +27,7 @@ namespace HW3
 					ThreadPool.QueueUserWorkItem(new WaitCallback(DoTasks), To_Send);
 					Console.WriteLine("Looping time num: {0}", i + 1);
 					Thread.Sleep(1000);
+					//Sheet.setConcurrentSearchLimit(2);
 				}
 				while(finished_threads!=nThreads)
 			{
@@ -35,16 +36,17 @@ namespace HW3
 			Console.WriteLine("Saved and Finished");
 			
 		}
-		public void Operations(SharableSpreadaheet Sheet, int rows, int cols, int nOperation)
+		public void Operations(SharableSpreadasheet Sheet, int rows, int cols, int nOperation)
 			{
 				Console.WriteLine("Starting Simulation\n-----------------------");
 				Console.WriteLine("Number of Rows - {0}\nNumber of Cols - {1}\nNumber of Operations - {2}", rows,
 					cols, nOperation);
 				string[] SOB = new string[10] {"Jefry Apstain", "Kim Jung Hun", "Alla ho wakbar", "Baby Jesus", "Rami Puzis",
 													"Beni Hadayag", "Aids", "Borat Sagadiev", "Kim Kardasian", "The KKK"};
-				Random rnd = new Random();
+				
 				for (int i = 0; i < nOperation; i++)
 				{
+				Random rnd = new Random();
 				Thread.Sleep(300);
 					int col1 = rnd.Next(1, cols);
 					int col2 = rnd.Next(col1+1, cols);
@@ -84,6 +86,7 @@ namespace HW3
 						case 3:
 							Console.WriteLine("Setting cell {0},{1}...", row1, col1);
 							Console.WriteLine("Word Choosen: {0}...", name);
+							//string to_set = ("cell{0}{1} - {2}",row1,col1,name);
 							bool check = Sheet.setCell(row1, col1, name);
 							if (check == true)
 							{
@@ -254,7 +257,7 @@ namespace HW3
 		public void DoTasks(object To_Convert)
 		{
 			object[] To_Convert1 = (object[])To_Convert;
-			SharableSpreadaheet Sheet = (SharableSpreadaheet)To_Convert1[0];
+			SharableSpreadasheet Sheet = (SharableSpreadasheet)To_Convert1[0];
 			int rows = (int)To_Convert1[1];
 			int cols = (int)To_Convert1[2];
 			int nOperations = (int)To_Convert1[3];
