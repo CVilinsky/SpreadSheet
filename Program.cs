@@ -18,7 +18,7 @@ namespace HW3
 			//Sheet.setCell(1, 2, "Chen");
 			var timer = new Stopwatch();
 			timer.Start();
-			Simulator SIM = new Simulator(3, 3, 5, 45);
+			Simulator SIM = new Simulator(3, 3, 4, 50);
 			timer.Stop();
 			TimeSpan taken = timer.Elapsed;
 			Console.WriteLine(taken);

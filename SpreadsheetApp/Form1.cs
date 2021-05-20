@@ -17,7 +17,9 @@ namespace SpreadsheetApp
 		public Form1()
 		{
 			InitializeComponent();
-			this.Add_col_text.KeyPress += Add_col_text_KeyPress;
+			//this.Add_col_text.KeyPress += Add_col_text_KeyPress;
+			this.row_get.KeyPress += row_get_KeyPress;
+			this.col_get.KeyPress += col_get_KeyPress;
 		}
 
 		private void Add_col_text_KeyPress(object sender, KeyPressEventArgs e)
@@ -27,7 +29,6 @@ namespace SpreadsheetApp
 			
 		}
 
-		DataTable table = new DataTable();
 		public void Form1_Load(object sender, EventArgs e)
 		{
 			
@@ -82,17 +83,53 @@ namespace SpreadsheetApp
 		}
 
 		
-		private void Add_col_button_Click(object sender, EventArgs e)
-		{
-			int add_after = Int32.Parse(Add_col_text.Text);
-			Sheet.addCol(add_after);
-			Sheet.save("spreadsheet.dat");
-			dataGridView1.Refresh();
-		}
+		
 
 		private void Add_col_text_TextChanged(object sender, EventArgs e)
 		{
 
+		}
+
+		private void Get_Value_Click(object sender, EventArgs e)
+		{
+			int row = Int32.Parse(row_get.Text);
+			int col = Int32.Parse(col_get.Text);
+			string result=Sheet.getCell(row, col);
+			if (result == "")
+				result = "Empty";
+			System.Windows.Forms.MessageBox.Show(result);
+
+		}
+
+		private void label1_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void row_get_TextChanged(object sender, EventArgs e)
+		{
+
+		}
+		private void row_get_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+		}
+
+		private void col_get_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+		}
+		private void col_get_TextChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void get_size_Click(object sender, EventArgs e)
+		{
+			int rows = 0;
+			int cols = 0;
+			Sheet.getSize(ref rows, ref cols);
+			System.Windows.Forms.MessageBox.Show($"{rows} Rows x {cols} Columns");
 		}
 	}
 }

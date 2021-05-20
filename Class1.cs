@@ -41,8 +41,7 @@ namespace HW3
 				Console.WriteLine("Starting Simulation\n-----------------------");
 				Console.WriteLine("Number of Rows - {0}\nNumber of Cols - {1}\nNumber of Operations - {2}", rows,
 					cols, nOperation);
-				string[] SOB = new string[10] {"Jefry Apstain", "Kim Jung Hun", "Alla ho wakbar", "Baby Jesus", "Rami Puzis",
-													"Beni Hadayag", "Aids", "Borat Sagadiev", "Kim Kardasian", "The KKK"};
+				//string[] SOB = new string[10] {"Jefry Apstain", "Kim Jung Hun", "Alla ho wakbar", "Baby Jesus", "Rami Puzis","Beni Hadayag", "Aids", "Borat Sagadiev", "Kim Kardasian", "The KKK"};
 				
 				for (int i = 0; i < nOperation; i++)
 				{
@@ -53,10 +52,10 @@ namespace HW3
 
 					int row1 = rnd.Next(1, rows);
 					int row2 = rnd.Next(row1 + 1, rows);
-
+				/*
 					int index = rnd.Next(SOB.Length);
 					string name = SOB[index];
-
+				*/
 					int func = rnd.Next(1, 12);
 					Console.WriteLine("User {0}", Thread.CurrentThread.ManagedThreadId);
 					Console.WriteLine("Case {0}", i + 1);
@@ -85,9 +84,9 @@ namespace HW3
 
 						case 3:
 							Console.WriteLine("Setting cell {0},{1}...", row1, col1);
-							Console.WriteLine("Word Choosen: {0}...", name);
+							Console.WriteLine($"Word Choosen: testcell{row1}{col1}...");
 							//string to_set = ("cell{0}{1} - {2}",row1,col1,name);
-							bool check = Sheet.setCell(row1, col1, name);
+							bool check = Sheet.setCell(row1, col1, $"testcell{row1}{col1}");
 							if (check == true)
 							{
 								Console.WriteLine("Set Cell.\n");
@@ -99,15 +98,15 @@ namespace HW3
 							break;
 
 						case 4:
-							Console.WriteLine("Start Searching: {0}...", name);
-							bool searchCheck = Sheet.searchString(name, ref row1, ref col1);
+							Console.WriteLine("Start Searching: {0}...", $"testcell{row1}{col1}");
+							bool searchCheck = Sheet.searchString($"testcell{row1}{col1}", ref row1, ref col1);
 							if (searchCheck == true)
 							{
 								Console.WriteLine("The string can be found in ({0},{1}).\n", row1, col1);
 							}
 							else
 							{
-								Console.WriteLine("{0} is not exist.\n", name);
+								Console.WriteLine($"testcell{row1}{col1} does not exist.\n");
 							}
 							break;
 
@@ -151,11 +150,11 @@ namespace HW3
 
 						case 7:
 							Console.WriteLine("Start Searching...");
-							Console.WriteLine("Word to Search: {0}...\nRow to Search in: {1}...", name, row1);
-							bool serRcheck = Sheet.searchInRow(row1, name, ref col1);
+							Console.WriteLine("Word to Search: {0}...\nRow to Search in: {1}...", $"testcell{row1}{col1}", row1);
+							bool serRcheck = Sheet.searchInRow(row1, $"testcell{row1}{col1}", ref col1);
 							if (serRcheck == true)
 							{
-								Console.WriteLine("The word {0} was found in col {1} in row {2}.\n", name, col1, row1);
+								Console.WriteLine("The word {0} was found in col {1} in row {2}.\n", $"testcell{row1}{col1}", col1, row1);
 							}
 							else
 							{
@@ -165,11 +164,11 @@ namespace HW3
 
 						case 8:
 							Console.WriteLine("Start Searching...");
-							Console.WriteLine("Word to Search: {0}...\nCol to Search in: {1}...", name, col1);
-							bool serCcheck = Sheet.searchInCol(col1, name, ref row2);
+							Console.WriteLine("Word to Search: {0}...\nCol to Search in: {1}...", $"testcell{row1}{col1}", col1);
+							bool serCcheck = Sheet.searchInCol(col1, $"testcell{row1}{col1}", ref row2);
 							if (serCcheck == true)
 							{
-								Console.WriteLine("The word {0} was found in row {1} in col {2}.\n", name, row1, col1);
+								Console.WriteLine("The word {0} was found in row {1} in col {2}.\n", $"testcell{row1}{col1}", row1, col1);
 							}
 							else
 							{
@@ -190,13 +189,13 @@ namespace HW3
 								row1--;
 							}
 							Console.WriteLine("Word to Search: {0}...\nCols to Search in: {1},{2}\nRows to Search in: {3},{4}...",
-								name, col1, col2, row1, row2);
+								$"testcell{row1}{col1}", col1, col2, row1, row2);
 							int col3 = 0;
 							int row3 = 0;
-							bool serInR = Sheet.searchInRange(col1, col2, row1, row2, name, ref row3, ref col3);
+							bool serInR = Sheet.searchInRange(col1, col2, row1, row2, $"testcell{row1}{col1}", ref row3, ref col3);
 							if (serInR == true)
 							{
-								Console.WriteLine("The word {0} was found in row {1} in col {2}.\n", name, row3, col3);
+								Console.WriteLine("The word {0} was found in row {1} in col {2}.\n", $"testcell{row1}{col1}", row3, col3);
 							}
 							else
 							{

@@ -13,7 +13,11 @@ public class SharableSpreadasheet
     Mutex[] Mutex_array_col;
     Mutex add_row;
     Mutex add_col;
-
+    /*
+     * In the constructor I create the mutex locks, and an initial "SearchLimit" for the setConcurent function
+     * I hold a mutex for each row, and for each column (in conclusion m+n mutexes)
+     * to make sure I have no problems, in each given time only one row/column can be added
+     */
     public SharableSpreadasheet(int nRows, int nCols)
     {
         // construct a nRows*nCols spreadsheet
@@ -49,7 +53,7 @@ public class SharableSpreadasheet
         // search the cell with string str, and return true/false accordingly.
         // stores the location in row,col.
         // return the first cell that contains the string (search from first row to the last row)
-        if (LimitSet == true)
+        if (LimitSet == true) //check the flag if setConcurrent was activated
 		{
             SearchLimit.WaitOne();
             Console.WriteLine("Increased Search Limit");
@@ -84,10 +88,15 @@ public class SharableSpreadasheet
             catch { }
         return false;
     }
+    /*
+     * First of all, lock the two rows that are going to be switched, I do so with the mutex.
+     * afterwards, use a temp variable that will hold the content of a cell and this way I switch.
+     * after the rows have been exchanged, unlock the mutex.
+     */
     public bool exchangeRows(int row1, int row2)
     {
         // exchange the content of row1 and row2
-        Mutex_array_row[row1].WaitOne();
+        Mutex_array_row[row1].WaitOne(); 
         Mutex_array_row[row2].WaitOne();
         string temp;
         for (int i=1;i<rowL;i++)
@@ -100,6 +109,9 @@ public class SharableSpreadasheet
         Mutex_array_row[row2].ReleaseMutex();
         return true;
     }
+    /*
+     * The same as for the Rows.
+     */
     public bool exchangeCols(int col1, int col2)
     {
         // exchange the content of col1 and col2
@@ -116,6 +128,10 @@ public class SharableSpreadasheet
         this.Mutex_array_col[col2].ReleaseMutex();
         return true;
     }
+    /*
+     * I lock the row that I need to look inside, to make sure things will not change while I look for the string.
+     * Release the mutex in the end.
+     */
     public bool searchInRow(int row, String str, ref int col)
     {
         // perform search in specific row
@@ -153,6 +169,9 @@ public class SharableSpreadasheet
         this.Mutex_array_row[row].ReleaseMutex();
         return false;
     }
+    /*
+     * Same as in the Row function. 
+     */
     public bool searchInCol(int col, String str, ref int row)
     {
         // perform search in specific col
@@ -189,6 +208,11 @@ public class SharableSpreadasheet
             Mutex_array_col[col].ReleaseMutex();
         return false;
     }
+    /*
+     * In this function I don't lock the range, because it might lock the whole sheet, an extreme aproach.
+     * if anywhere I find the string, I set the row and col references.
+     * afterwards I exit the function.
+     */
     public bool searchInRange(int col1, int col2, int row1, int row2, String str, ref int row, ref int col)
     {
         // perform search within spesific range: [row1:row2,col1:col2] 
@@ -232,6 +256,15 @@ public class SharableSpreadasheet
             
         return false;
     }
+    /*First I use the add_row mutex, to make sure no other rows are added for now.
+     * I create a new spreadsheet, and a larger mutex array for the rows.
+     * I copy the content of the last mutex_array and add a new mutex in the end.
+     * I lock all the rows under the desired row.
+     * Now I copy all the cells from the first spreadsheet above the desired row.
+     * When we finish that we copy the content of the first spreadsheet to the new one, but 2 rows under the desired row.
+     * afterwards, unlock the mutexs in the array, and the add_row mutex.
+     * 
+     */
     public bool addRow(int row1)
     {
         //add a row after row1
@@ -270,6 +303,9 @@ public class SharableSpreadasheet
         this.add_row.ReleaseMutex();
         return true;
     }
+    /*
+     * Same as for the addRow.
+     */
     public bool addCol(int col1)
     {
         //add a column after col1
@@ -311,6 +347,9 @@ public class SharableSpreadasheet
         nCols = this.rowL;
 
     }
+    /*
+     * Set the searchlimit, also raise the flag that a searchlimit has been set.
+     */
     public bool setConcurrentSearchLimit(int nUsers)
     {
         // this function aims to limit the number of users that can perform the search operations concurrently.
@@ -320,7 +359,9 @@ public class SharableSpreadasheet
         LimitSet = true;
         return true;
     }
-
+    /*
+     * Save the spreadsheet in a "csv" format.
+     */
     public bool save(String fileName)
     {
         // save the spreadsheet to a file fileName.
@@ -339,6 +380,10 @@ public class SharableSpreadasheet
 		}
         return true;
     }
+    /*
+     * load the spreadsheet and populate it.
+     * also, create the mutex arrays.
+     */
     public bool load(String fileName)
     {
         // load the spreadsheet from fileName
