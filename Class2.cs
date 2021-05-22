@@ -29,7 +29,7 @@ namespace HW3
 			this.m_resource.ReleaseMutex();
 			if(this.resource < 0)
 			this.Flag = true;
-			while(Flag){ }; // busy wait		
+			while(Flag){ }; // wait until able to enter		
 			this.m_wait.ReleaseMutex();
 		}
 		public  void signal()

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HW3.csproj" />
+    <ProjectReference Include="..\Simulator.csproj" />
   </ItemGroup>
 
 </Project>

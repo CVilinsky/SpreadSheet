@@ -29,6 +29,7 @@ namespace SpreadsheetApp
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.dataGridView1 = new System.Windows.Forms.DataGridView();
 			this.Load = new System.Windows.Forms.Button();
 			this.Browse_text = new System.Windows.Forms.TextBox();
@@ -41,6 +42,21 @@ namespace SpreadsheetApp
 			this.row = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
 			this.get_size = new System.Windows.Forms.Button();
+			this.set_value = new System.Windows.Forms.Button();
+			this.row_set = new System.Windows.Forms.TextBox();
+			this.col_set = new System.Windows.Forms.TextBox();
+			this.Set_box = new System.Windows.Forms.TextBox();
+			this.label2 = new System.Windows.Forms.Label();
+			this.add_col = new System.Windows.Forms.Button();
+			this.add_col_text = new System.Windows.Forms.TextBox();
+			this.search_string = new System.Windows.Forms.Button();
+			this.search_box = new System.Windows.Forms.TextBox();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTip2 = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTip3 = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTip4 = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTip5 = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTip6 = new System.Windows.Forms.ToolTip(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -49,6 +65,7 @@ namespace SpreadsheetApp
 			this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dataGridView1.Location = new System.Drawing.Point(0, 0);
 			this.dataGridView1.Name = "dataGridView1";
+			this.dataGridView1.RowHeadersWidth = 51;
 			this.dataGridView1.RowTemplate.Height = 25;
 			this.dataGridView1.Size = new System.Drawing.Size(645, 418);
 			this.dataGridView1.TabIndex = 0;
@@ -138,7 +155,7 @@ namespace SpreadsheetApp
 			// 
 			// get_size
 			// 
-			this.get_size.Location = new System.Drawing.Point(651, 168);
+			this.get_size.Location = new System.Drawing.Point(651, 279);
 			this.get_size.Name = "get_size";
 			this.get_size.Size = new System.Drawing.Size(139, 23);
 			this.get_size.TabIndex = 11;
@@ -146,11 +163,98 @@ namespace SpreadsheetApp
 			this.get_size.UseVisualStyleBackColor = true;
 			this.get_size.Click += new System.EventHandler(this.get_size_Click);
 			// 
+			// set_value
+			// 
+			this.set_value.Location = new System.Drawing.Point(651, 159);
+			this.set_value.Name = "set_value";
+			this.set_value.Size = new System.Drawing.Size(139, 23);
+			this.set_value.TabIndex = 12;
+			this.set_value.Text = "Set Value";
+			this.set_value.UseVisualStyleBackColor = true;
+			this.set_value.Click += new System.EventHandler(this.set_value_Click);
+			// 
+			// row_set
+			// 
+			this.row_set.Location = new System.Drawing.Point(810, 160);
+			this.row_set.Name = "row_set";
+			this.row_set.Size = new System.Drawing.Size(30, 23);
+			this.row_set.TabIndex = 13;
+			// 
+			// col_set
+			// 
+			this.col_set.Location = new System.Drawing.Point(866, 160);
+			this.col_set.Name = "col_set";
+			this.col_set.Size = new System.Drawing.Size(30, 23);
+			this.col_set.TabIndex = 14;
+			// 
+			// Set_box
+			// 
+			this.Set_box.Location = new System.Drawing.Point(792, 189);
+			this.Set_box.Name = "Set_box";
+			this.Set_box.Size = new System.Drawing.Size(121, 23);
+			this.Set_box.TabIndex = 15;
+			this.Set_box.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			this.label2.Location = new System.Drawing.Point(681, 192);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(79, 20);
+			this.label2.TabIndex = 16;
+			this.label2.Text = "Text to Set";
+			// 
+			// add_col
+			// 
+			this.add_col.Location = new System.Drawing.Point(651, 250);
+			this.add_col.Name = "add_col";
+			this.add_col.Size = new System.Drawing.Size(139, 23);
+			this.add_col.TabIndex = 17;
+			this.add_col.Text = "Add Column";
+			this.add_col.UseVisualStyleBackColor = true;
+			this.add_col.Click += new System.EventHandler(this.add_col_Click);
+			// 
+			// add_col_text
+			// 
+			this.add_col_text.Location = new System.Drawing.Point(810, 250);
+			this.add_col_text.Name = "add_col_text";
+			this.add_col_text.Size = new System.Drawing.Size(30, 23);
+			this.add_col_text.TabIndex = 18;
+			// 
+			// search_string
+			// 
+			this.search_string.Location = new System.Drawing.Point(651, 221);
+			this.search_string.Margin = new System.Windows.Forms.Padding(2);
+			this.search_string.Name = "search_string";
+			this.search_string.Size = new System.Drawing.Size(139, 23);
+			this.search_string.TabIndex = 21;
+			this.search_string.Text = "Search String";
+			this.search_string.UseVisualStyleBackColor = true;
+			this.search_string.Click += new System.EventHandler(this.search_string_Click);
+			// 
+			// search_box
+			// 
+			this.search_box.Location = new System.Drawing.Point(792, 222);
+			this.search_box.Margin = new System.Windows.Forms.Padding(2);
+			this.search_box.Name = "search_box";
+			this.search_box.Size = new System.Drawing.Size(121, 23);
+			this.search_box.TabIndex = 22;
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(943, 450);
+			this.ClientSize = new System.Drawing.Size(1007, 450);
+			this.Controls.Add(this.search_box);
+			this.Controls.Add(this.search_string);
+			this.Controls.Add(this.add_col_text);
+			this.Controls.Add(this.add_col);
+			this.Controls.Add(this.label2);
+			this.Controls.Add(this.Set_box);
+			this.Controls.Add(this.col_set);
+			this.Controls.Add(this.row_set);
+			this.Controls.Add(this.set_value);
 			this.Controls.Add(this.get_size);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.row);
@@ -163,7 +267,7 @@ namespace SpreadsheetApp
 			this.Controls.Add(this.Load);
 			this.Controls.Add(this.dataGridView1);
 			this.Name = "Form1";
-			this.Text = "Form1";
+			this.Text = "SpreadsheetApp";
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -184,6 +288,21 @@ namespace SpreadsheetApp
 		private System.Windows.Forms.Label row;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button get_size;
+		private System.Windows.Forms.Button set_value;
+		private System.Windows.Forms.TextBox row_set;
+		private System.Windows.Forms.TextBox col_set;
+		private System.Windows.Forms.TextBox Set_box;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.Button add_col;
+		private System.Windows.Forms.TextBox add_col_text;
+		private System.Windows.Forms.Button search_string;
+		private System.Windows.Forms.TextBox search_box;
+		private System.Windows.Forms.ToolTip toolTip1;
+		private System.Windows.Forms.ToolTip toolTip2;
+		private System.Windows.Forms.ToolTip toolTip3;
+		private System.Windows.Forms.ToolTip toolTip4;
+		private System.Windows.Forms.ToolTip toolTip5;
+		private System.Windows.Forms.ToolTip toolTip6;
 	}
 }
 

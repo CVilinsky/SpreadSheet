@@ -20,6 +20,14 @@ namespace SpreadsheetApp
 			//this.Add_col_text.KeyPress += Add_col_text_KeyPress;
 			this.row_get.KeyPress += row_get_KeyPress;
 			this.col_get.KeyPress += col_get_KeyPress;
+			this.row_set.KeyPress += row_get_KeyPress;
+			this.col_set.KeyPress += col_get_KeyPress;
+			this.add_col_text.KeyPress += add_col_text_KeyPress;
+			toolTip1.SetToolTip(Browse_button, "Browse for the file");
+			toolTip2.SetToolTip(Get_Value, "Get the value at the given Row - Col");
+			toolTip3.SetToolTip(set_value, "Set the string at the desired Row - Col");
+			toolTip4.SetToolTip(search_string, "Search for the desired string");
+			toolTip5.SetToolTip(add_col, "Add a new column to the right of the given column");
 		}
 
 		private void Add_col_text_KeyPress(object sender, KeyPressEventArgs e)
@@ -37,6 +45,7 @@ namespace SpreadsheetApp
 		private void Load_Click(object sender, EventArgs e)
 		{
 			dataGridView1.Rows.Clear();
+			dataGridView1.Columns.Clear();
 			int rows = 0;
 			int cols = 0;
 			Sheet.load(Browse_text.Text);
@@ -79,7 +88,7 @@ namespace SpreadsheetApp
 
 		private void Save_button_Click(object sender, EventArgs e)
 		{
-
+			Sheet.save(Browse_text.Text);
 		}
 
 		
@@ -114,8 +123,21 @@ namespace SpreadsheetApp
 		{
 			e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
 		}
-
+		private void add_col_text_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+		}
+		
 		private void col_get_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+		}
+		private void row_set_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+		}
+
+		private void col_set_KeyPress(object sender, KeyPressEventArgs e)
 		{
 			e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
 		}
@@ -130,6 +152,39 @@ namespace SpreadsheetApp
 			int cols = 0;
 			Sheet.getSize(ref rows, ref cols);
 			System.Windows.Forms.MessageBox.Show($"{rows} Rows x {cols} Columns");
+		}
+
+		private void set_value_Click(object sender, EventArgs e)
+		{
+			int row = Int32.Parse(row_set.Text);
+			int col = Int32.Parse(col_set.Text);
+			this.Sheet.setCell(row, col,Set_box.Text);
+			Sheet.save(Browse_text.Text);
+			Load_Click(sender, e);
+		}
+
+		private void textBox1_TextChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void add_col_Click(object sender, EventArgs e)
+		{
+			int col = Int32.Parse(add_col_text.Text);
+			this.Sheet.addCol(col);
+			Sheet.save(Browse_text.Text);
+			Load_Click(sender, e);
+		}
+
+		private void search_string_Click(object sender, EventArgs e)
+		{
+			int row = 0;
+			int col = 0;
+			bool check=Sheet.searchString(search_box.Text, ref row, ref col);
+			if (check==true)
+			System.Windows.Forms.MessageBox.Show($" The string '{search_box.Text}' is at ({row} , {col})");
+			else
+				System.Windows.Forms.MessageBox.Show($" The string '{search_box.Text}' was not found");
 		}
 	}
 }
